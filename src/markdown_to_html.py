@@ -2,6 +2,16 @@ from markdown_to_blocks import markdown_to_blocks
 from block_to_blocktype import block_to_block_type, BlockType
 from htmlnode import HTMLnode
 from htmlnode import ParentNode, LeafNode
+from text_to_textnode import text_to_textnodes
+from textnode import text_node_to_html_node
+
+def text_to_children(text):
+    text_nodes = text_to_textnodes(text)
+    children = []
+    for text_node in text_nodes:
+        children.append(text_node_to_html_node(text_node))
+    return children
+
 def get_heading_level(block):
     lvl = 0
     for char in block:
@@ -19,11 +29,11 @@ def markdown_to_html_node(markdown):
         
         if block_type == BlockType.HEADING:
             level = get_heading_level(block)
-            node = LeafNode(f"h{level}", f"{block[level + 1:]}" )
-            print(node.to_html())
+            node = ParentNode(f"h{level}", text_to_children(block[level + 1:]) )
+            
         elif block_type == BlockType.PARAGRAPH:
-
-            node = LeafNode("p", block)
+            block = " ".join(block.split("\n"))
+            node = ParentNode("p", text_to_children(block))
 
         elif block_type == BlockType.CODE:
             node = ParentNode("pre", [LeafNode("code", block[4:-3])])
@@ -33,22 +43,22 @@ def markdown_to_html_node(markdown):
             for line in lines:
                 stripped_lines.append(line[2:])
             joined_text = " ".join(stripped_lines)
-            node = LeafNode("blockquote", joined_text)
-            print("joined text :", joined_text)
+            node = ParentNode("blockquote", text_to_children(joined_text))
+            
         elif block_type == BlockType.UNORDERED_LIST:
             lines = block.split("\n")
             lines_list = []
             for line in lines:
 
-                leaf = LeafNode("li", line[2:])
+                leaf = ParentNode("li", text_to_children(line[2:]))
                 lines_list.append(leaf)
-            node = ParentNode("ul",lines_list)
+            node = ParentNode("ul", lines_list)
         elif block_type == BlockType.ORDERED_LIST:
             lines = block.split("\n")
             lines_list = []
             for line in lines:
                 parts = line.split(". ", 1)
-                leaf = LeafNode("li", parts[1])
+                leaf = ParentNode("li", text_to_children(parts[1]))
                 lines_list.append(leaf)
             node = ParentNode("ol", lines_list)
         children.append(node)
@@ -58,4 +68,3 @@ def markdown_to_html_node(markdown):
 
 md = "1. item one\n2. item two\n3. item three"
 node = markdown_to_html_node(md)
-print(node.to_html())
