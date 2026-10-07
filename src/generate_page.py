@@ -1,8 +1,8 @@
 from markdown_to_html import markdown_to_html_node
 from extract_title import extract_title
 import os
-def generate_page(from_path, template_path, dest_path):
-    print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+def generate_page(from_path, template_path, dest_path, basepath):
+
     
 
     with open(from_path, "r") as f:
@@ -21,6 +21,10 @@ def generate_page(from_path, template_path, dest_path):
     final_html = final_html.replace("{{ Content }}", html_string)
 
 
+    final_html = final_html.replace("href=\"/", f"href=\"{basepath}")
+    final_html = final_html.replace("src=\"/", f"src=\"{basepath}")
+
+    
     dest_dir = os.path.dirname(dest_path)
     os.makedirs(dest_dir, exist_ok=True)
 

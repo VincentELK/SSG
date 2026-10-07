@@ -5,7 +5,13 @@ import shutil
 from extract_title import extract_title
 from generate_page import generate_page
 from generate_pages_recursive import generate_page_recursive
-
+import sys
+basepath = ""
+if len(sys.argv) > 1:
+    basepath = sys.argv[1]
+else:
+    basepath = "/"
+print(basepath)
 def copy_recursive_content(source, dest):
 
     contents = os.listdir(source)
@@ -22,9 +28,9 @@ def copy_recursive_content(source, dest):
 
 def main():
 
-    if os.path.exists("public"):
-        shutil.rmtree("public")
-    copy_recursive_content("static", "public")
-    generate_page("content/index.md", "template.html", "public/index.html")
-    generate_page_recursive("content", "template.html", "public")
+    if os.path.exists("docs"):
+        shutil.rmtree("docs")
+    copy_recursive_content("static", "docs")
+    generate_page("content/index.md", "template.html", "docs/index.html", basepath)
+    generate_page_recursive("content", "template.html", "docs", basepath)
 main()
